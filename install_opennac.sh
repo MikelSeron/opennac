@@ -83,9 +83,30 @@ yum -y install libcurl-devel libpcap-devel net-snmp-utils screen patch ansible g
 chkconfig --add firstboot
 echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
 
+# Set opennac repo
+mkdir /home/opennac
+cd /home/opennac/
+wget "https://onedrive.live.com/download?cid=3076FCAFFB59C02A&resid=3076FCAFFB59C02A%211336&authkey=AMEBLEbCRSIgypw" -O opennacrepo.tar.gz
+tar xvzf opennacrepo.tar.gz
+chmod
 
+yum install -y createrepo
+createrepo /home/opennac/repo-opennac.opencloudfactory.com/x86_64
+
+cat <<EOF>/etc/yum.repos.d/opennac.repo
+[OPENNAC]
+name=Opennac repo
+baseurl="file:///home/opennac/repo-opennac.opencloudfactory.com/x86_64/"
+enabled=1
+gpgcheck=0
+EOF
+
+yum clean all
+mkdir -p /var/lib/rpm-state
+yum update -y
 
 # Install Active Directory integration packages
+yum -y remove samba-winbind samba-common samba-client samba-winbind-clients samba
 yum -y install samba4 samba4-winbind samba4-winbind-clients krb5-server krb5-workstation
 
 # install opennac rpms and dependences.
